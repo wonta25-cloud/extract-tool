@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>&#47749;&#49464;&#49436; &#52628;&#52636;</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #171b22;
+      --muted: #687180;
+      --line: #d9dee7;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --soft: #eef4ff;
+      --danger: #b42318;
+      --ok: #0f766e;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 28px auto;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+      overflow: hidden;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .section-head strong { font-size: 15px; }
+    .section-body { padding: 16px; }
+
+    .result-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0 8px;
+    }
+
+    .result-head:first-of-type {
+      margin-top: 0;
+    }
+
+    .result-head strong {
+      font-size: 15px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 430px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      color: var(--ink);
+      font: 13px/1.55 Consolas, "Courier New", monospace;
+      outline: none;
+      tab-size: 4;
+      background: #fff;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: var(--accent-dark);
+      color: #fff;
+    }
+
+    button:hover {
+      border-color: #aeb8c8;
+      background: #f8fafc;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    label.keyword {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 10px;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--accent);
+    }
+
+    .status {
+      min-height: 28px;
+      margin-bottom: 10px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      background: var(--soft);
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .status.warn {
+      background: #fff4ed;
+      color: var(--danger);
+    }
+
+    .status.ok {
+      background: #ecfdf5;
+      color: var(--ok);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      min-height: 178px;
+      max-height: 338px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 420px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    td,
+    .output-box {
+      font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif;
+      font-size: 11px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      color: #344054;
+      font-weight: 800;
+      z-index: 1;
+    }
+
+    td.qty {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .empty {
+      padding: 36px 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .output-box {
+      width: 100%;
+      min-height: 124px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px;
+      background: #fbfcfe;
+      line-height: 1.55;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    @media (max-width: 860px) {
+      main {
+        width: min(100vw - 20px, 720px);
+        margin: 16px auto;
+      }
+
+      header,
+      .workspace { display: block; }
+      section + section { margin-top: 14px; }
+      textarea { min-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>&#47749;&#49464;&#49436; &#51068;&#47144;&#48264;&#54840;/&#44508;&#44201;/&#49688;&#47049; &#52628;&#52636;</h1>
+        <p>&#47749;&#49464;&#49436;&#50640;&#49436; &#49692;&#48264;&#48512;&#53552; &#51201;&#50836;&#44620;&#51648; &#48373;&#49324;&#54620; &#45236;&#50857;&#51012; &#48537;&#50668;&#45347;&#51004;&#47732;, &#51201;&#50836;&#44032; &#51088;&#49688;/&#45208;&#50684;/&#51204;&#49324;&#51064; &#54665;&#51032; &#51068;&#47144;&#48264;&#54840;, &#44508;&#44201;, &#49688;&#47049;&#51012; &#52628;&#52636;&#54633;&#45768;&#45796;.</p>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <section>
+        <div class="section-head">
+          <strong>&#48537;&#50668;&#45347;&#44592;</strong>
+        </div>
+        <div class="section-body">
+          <textarea id="source" spellcheck="false" placeholder="&#49692;&#48264;	&#54408;&#47785;&#47749;	&#51068;&#47144;&#48264;&#54840;	&#44508;&#44201;	&#49688;&#47049;	&#45800;&#44032;	&#44277;&#44553;&#44032;&#50529;	&#48512;&#44032;&#49464;	&#51201;&#50836;"></textarea>
+          <div class="toolbar">
+            <button class="primary" id="extractBtn" type="button">&#52628;&#52636;</button>
+            <button id="sampleBtn" type="button">&#50696;&#49884; &#51077;&#47141;</button>
+            <button id="clearBtn" type="button">&#48708;&#50864;&#44592;</button>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <strong>&#52628;&#52636; &#44208;&#44284;</strong>
+        </div>
+        <div class="section-body">
+          <div class="filters" aria-label="extract note">
+            <label class="keyword"><input type="checkbox" value="&#51088;&#49688;" checked>&#51088;&#49688;</label>
+            <label class="keyword"><input type="checkbox" value="&#45208;&#50684;">&#45208;&#50684;</label>
+            <label class="keyword"><input type="checkbox" value="&#51204;&#49324;">&#51204;&#49324;</label>
+          </div>
+          <div id="status" class="status">&#48537;&#50668;&#45347;&#51008; &#46244; &#52628;&#52636;&#51012; &#45580;&#47084;&#51452;&#49464;&#50836;.</div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>&#51068;&#47144;&#48264;&#54840;</th>
+                  <th>&#44508;&#44201;</th>
+                  <th>&#49688;&#47049;</th>
+                </tr>
+              </thead>
+              <tbody id="resultBody">
+                <tr><td class="empty" colspan="3">&#50500;&#51649; &#52628;&#52636;&#46108; &#45236;&#50857;&#51060; &#50630;&#49845;&#45768;&#45796;.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="result-head">
+            <button id="copyExcelBtn" type="button">&#48373;&#49324;</button>
+            <strong>&#50641;&#49472;</strong>
+          </div>
+          <div id="copyExcelText" class="output-box" aria-label="excel copy text"></div>
+
+          <div class="result-head">
+            <button id="copyDesignBtn" type="button">&#48373;&#49324;</button>
+            <strong>&#49884;&#50504;</strong>
+          </div>
+          <div id="designText" class="output-box" aria-label="design copy text"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const source = document.getElementById("source");
+    const resultBody = document.getElementById("resultBody");
+    const statusEl = document.getElementById("status");
+    const copyExcelText = document.getElementById("copyExcelText");
+    const designText = document.getElementById("designText");
+    const keywordInputs = Array.from(document.querySelectorAll(".keyword input"));
+    const sizeTokens = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "44", "55", "66", "77", "88", "99", "90", "95", "100", "105", "110", "115", "120", "125", "130", "140"];
+
+    const sample = "\uc21c\ubc88\t\ud488\ubaa9\uba85\t\uc77c\ub828\ubc88\ud638\t\uaddc\uaca9\t\uc218\ub7c9\t\ub2e8\uac00\t\uacf5\uae09\uac00\uc561\t\ubd80\uac00\uc138\t\uc801\uc694";
+
+    function selectedKeywords() {
+      return keywordInputs.filter((input) => input.checked).map((input) => input.value);
+    }
+
+    function normalizeCell(value) {
+      return String(value ?? "").replace(/\u00a0/g, " ").trim();
+    }
+
+    function parseRows(text) {
+      return text
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .map((line) => line.split("\t"))
+        .filter((cells) => cells.some((cell) => normalizeCell(cell) !== ""));
+    }
+
+    function findColumn(headers, names, fallbackIndex) {
+      const normalized = headers.map(normalizeCell);
+      for (const name of names) {
+        const index = normalized.indexOf(name);
+        if (index >= 0) return index;
+      }
+      return fallbackIndex;
+    }
+
+    function extractAllowedSize(spec) {
+      const value = normalizeCell(spec).toUpperCase();
+      if (!value) return "";
+      const sortedTokens = [...sizeTokens].sort((a, b) => b.length - a.length);
+      const matched = sortedTokens.find((token) => {
+        const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return new RegExp(`(^|[^A-Z0-9])${escaped}($|[^A-Z0-9])`, "i").test(value);
+      });
+      return matched || "";
+    }
+
+    function cleanSpecPart(value) {
+      return normalizeCell(value)
+        .replace(/^[\[\("']+/, "")
+        .replace(/[\]\)"']+$/, "")
+        .trim();
+    }
+
+    function splitSpec(spec) {
+      return normalizeCell(spec)
+        .replace(/^\[/, "")
+        .replace(/\]$/, "")
+        .split("/")
+        .map(cleanSpecPart);
+    }
+
+    function firstSpecPart(spec) {
+      return splitSpec(spec)[0] || "";
+    }
+
+    function middleSpecPart(spec) {
+      return splitSpec(spec)[1] || "";
+    }
+
+    function makeDesignLine(item) {
+      if (item.serial.toUpperCase().startsWith("A-")) {
+        return `${item.serial} ${firstSpecPart(item.rawSpec)} (${item.quantity})`;
+      }
+
+      return `${item.serial} ${middleSpecPart(item.rawSpec)} (${item.spec} - ${item.quantity})`;
+    }
+
+    function extract() {
+      const rows = parseRows(source.value);
+      const keywords = selectedKeywords();
+
+      if (!source.value.trim()) {
+        render([], "\ubd99\uc5ec\ub123\uc744 \ub0b4\uc6a9\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.", "warn");
+        return;
+      }
+
+      if (keywords.length === 0) {
+        render([], "\ucd94\ucd9c\ud560 \uc801\uc694\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694.", "warn");
+        return;
+      }
+
+      const headerIndex = rows.findIndex((cells) => cells.some((cell) => normalizeCell(cell) === "\uc21c\ubc88"));
+      const dataStart = headerIndex >= 0 ? headerIndex + 1 : 0;
+      const headers = headerIndex >= 0 ? rows[headerIndex] : [];
+      const serialIndex = findColumn(headers, ["\uc77c\ub828\ubc88\ud638", "\ud488\ubc88", "\uc0c1\ud488\ucf54\ub4dc"], 2);
+      const specIndex = findColumn(headers, ["\uaddc\uaca9", "\uc635\uc158"], 3);
+      const qtyIndex = findColumn(headers, ["\uc218\ub7c9"], 4);
+      const noteIndex = findColumn(headers, ["\uc801\uc694", "\ube44\uace0"], 8);
+
+      const extracted = rows.slice(dataStart).flatMap((cells) => {
+        const note = normalizeCell(cells[noteIndex]);
+        if (!keywords.some((keyword) => note.includes(keyword))) return [];
+
+        const spec = normalizeCell(cells[specIndex]);
+        return [{
+          serial: normalizeCell(cells[serialIndex]),
+          rawSpec: spec,
+          spec: extractAllowedSize(spec),
+          quantity: normalizeCell(cells[qtyIndex])
+        }];
+      });
+
+      const message = extracted.length > 0
+        ? `${extracted.length}\uac74\uc744 \ucd94\ucd9c\ud588\uc2b5\ub2c8\ub2e4.`
+        : "\uc870\uac74\uc5d0 \ub9de\ub294 \ud589\uc774 \uc5c6\uc2b5\ub2c8\ub2e4. \uc801\uc694 \uce78\uc5d0 \uc790\uc218, \ub098\uc5fc, \uc804\uc0ac\uac00 \uc788\ub294\uc9c0 \ud655\uc778\ud558\uc138\uc694.";
+
+      render(extracted, message, extracted.length > 0 ? "ok" : "warn");
+    }
+
+    function render(items, message, tone) {
+      statusEl.textContent = message;
+      statusEl.className = `status ${tone || ""}`.trim();
+
+      if (items.length === 0) {
+        resultBody.innerHTML = '<tr><td class="empty" colspan="3">\ucd94\ucd9c \uacb0\uacfc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.</td></tr>';
+        copyExcelText.textContent = "";
+        designText.textContent = "";
+        return;
+      }
+
+      resultBody.innerHTML = items.map((item) => `
+        <tr>
+          <td>${escapeHtml(item.serial)}</td>
+          <td>${escapeHtml(item.spec)}</td>
+          <td class="qty">${escapeHtml(item.quantity)}</td>
+        </tr>
+      `).join("");
+
+      copyExcelText.textContent = items
+        .map((item) => `${item.serial}\t${item.spec}\t${item.quantity}`)
+        .join("\n");
+
+      designText.textContent = items
+        .map(makeDesignLine)
+        .join("\n");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    async function copyResult(targetEl) {
+      const text = targetEl.textContent.trim();
+      if (!text) {
+        statusEl.textContent = "\ubcf5\uc0ac\ud560 \uacb0\uacfc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.";
+        statusEl.className = "status warn";
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        statusEl.textContent = "\uacb0\uacfc\ub97c \ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ud588\uc2b5\ub2c8\ub2e4.";
+        statusEl.className = "status ok";
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents(targetEl);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        statusEl.textContent = "\uc790\ub3d9 \ubcf5\uc0ac\uac00 \ub9c9\ud614\uc2b5\ub2c8\ub2e4. \uc120\ud0dd\ub41c \uacb0\uacfc\ub97c Ctrl+C\ub85c \ubcf5\uc0ac\ud558\uc138\uc694.";
+        statusEl.className = "status warn";
+      }
+    }
+
+    document.getElementById("extractBtn").addEventListener("click", extract);
+    document.getElementById("sampleBtn").addEventListener("click", () => {
+      source.value = sample;
+      extract();
+    });
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      source.value = "";
+      render([], "\ubd99\uc5ec\ub123\uc740 \ub4a4 \ucd94\ucd9c\uc744 \ub204\ub974\uc138\uc694.", "");
+      source.focus();
+    });
+    document.getElementById("copyExcelBtn").addEventListener("click", () => copyResult(copyExcelText));
+    document.getElementById("copyDesignBtn").addEventListener("click", () => copyResult(designText));
+    keywordInputs.forEach((input) => input.addEventListener("change", extract));
+  </script>
+</body>
+</html>
